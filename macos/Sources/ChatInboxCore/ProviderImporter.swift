@@ -30,6 +30,7 @@ public enum ProviderImporter {
         for type in types where !capture.formats.contains(type) { capture.formats.append(type) }
         guard let identifier = preferredType(types) else { throw ImportError.noRepresentation }
         let type = UTType(identifier)
+        let suggestedName = provider.suggestedName
         if type?.conforms(to: .url) == true {
             let url = try await loadURL(provider, type: identifier)
             if url.isFileURL {
@@ -38,7 +39,7 @@ public enum ProviderImporter {
                 var coordinatorError: NSError?
                 var copyError: Error?
                 NSFileCoordinator().coordinate(readingItemAt: url, options: .withoutChanges, error: &coordinatorError) { source in
-                    do { try capture.addFile(source, displayName: provider.suggestedName) }
+                    do { try capture.addFile(source, displayName: suggestedName) }
                     catch { copyError = error }
                 }
                 if let coordinatorError { throw coordinatorError }
@@ -58,7 +59,7 @@ public enum ProviderImporter {
                     }
                     do {
                         // The temporary representation is valid only until this callback returns.
-                        try capture.addFile(temporary, displayName: displayName(provider, type: type, fallback: temporary.lastPathComponent), contentType: contentType, kind: kind)
+                        try capture.addFile(temporary, displayName: displayName(suggestedName, type: type, fallback: temporary.lastPathComponent), contentType: contentType, kind: kind)
                         continuation.resume()
                     } catch { continuation.resume(throwing: error) }
                 }
@@ -71,12 +72,12 @@ public enum ProviderImporter {
                     else { continuation.resume(throwing: ImportError.unavailable(identifier)) }
                 }
             }
-            try capture.addData(data, name: displayName(provider, type: type, fallback: "shared"), contentType: contentType, kind: kind)
+            try capture.addData(data, name: displayName(suggestedName, type: type, fallback: "shared"), contentType: contentType, kind: kind)
         }
     }
 
-    private static func displayName(_ provider: NSItemProvider, type: UTType?, fallback: String) -> String {
-        var name = provider.suggestedName.flatMap { $0.isEmpty ? nil : $0 } ?? fallback
+    private static func displayName(_ suggestedName: String?, type: UTType?, fallback: String) -> String {
+        var name = suggestedName.flatMap { $0.isEmpty ? nil : $0 } ?? fallback
         if (name as NSString).pathExtension.isEmpty { name += "." + (type?.preferredFilenameExtension ?? "bin") }
         return name
     }

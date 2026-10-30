@@ -29,8 +29,8 @@ SIGN_IDENTITY="${SIGN_IDENTITY:--}"
 codesign --force --sign "$SIGN_IDENTITY" --entitlements "$ROOT/Resources/Share.entitlements" "$EXTENSION"
 codesign --force --sign "$SIGN_IDENTITY" "$APP"
 codesign --verify --deep --strict --verbose=2 "$APP"
-lipo -verify_arch arm64 x86_64 "$APP/Contents/MacOS/ChatInbox"
-lipo -verify_arch arm64 x86_64 "$EXTENSION/Contents/MacOS/ChatInboxShare"
+lipo "$APP/Contents/MacOS/ChatInbox" -verify_arch arm64 x86_64
+lipo "$EXTENSION/Contents/MacOS/ChatInboxShare" -verify_arch arm64 x86_64
 nm -u "$EXTENSION/Contents/MacOS/ChatInboxShare" > "$OUTPUT/extension-symbols.txt"
 grep -q '_NSExtensionMain' "$OUTPUT/extension-symbols.txt"
 echo "Built universal macOS app: $APP"

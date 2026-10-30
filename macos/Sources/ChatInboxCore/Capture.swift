@@ -29,12 +29,17 @@ public struct Manifest: Codable {
     public let partial: Bool
 }
 
-public final class Capture {
+public final class Capture: @unchecked Sendable {
     public static let defaultLimit: Int64 = 1_073_741_824
     public let batchId = UUID().uuidString.lowercased()
-    public var formats: [String] = []
-    public var warnings: [String] = []
-    public var unhandledFormats: [String] = []
+    // Provider callbacks may arrive on another queue; all mutable batch state is locked.
+    private let lock = NSRecursiveLock()
+    private var formatValues: [String] = []
+    private var warningValues: [String] = []
+    private var unhandledValues: [String] = []
+    public var formats: [String] { get { locked { formatValues } } set { locked { formatValues = newValue } } }
+    public var warnings: [String] { get { locked { warningValues } } set { locked { warningValues = newValue } } }
+    public var unhandledFormats: [String] { get { locked { unhandledValues } } set { locked { unhandledValues = newValue } } }
     private let root: URL
     private let stage: URL
     private let source: String
@@ -42,6 +47,12 @@ public final class Capture {
     private var total: Int64 = 0
     private var items: [ManifestItem] = []
     private var finished = false
+
+    private func locked<T>(_ body: () throws -> T) rethrows -> T {
+        lock.lock()
+        defer { lock.unlock() }
+        return try body()
+    }
 
     public static func accountHome() throws -> URL {
         // NSHomeDirectory points inside the extension's sandbox, not the account home.
@@ -71,6 +82,8 @@ public final class Capture {
     }
 
     public func addFile(_ file: URL, displayName: String? = nil, contentType: String = "application/octet-stream", kind: String = "file") throws {
+        lock.lock()
+        defer { lock.unlock() }
         let descriptor = Darwin.open(file.path, O_RDONLY | O_NOFOLLOW)
         guard descriptor >= 0 else { throw CaptureError.invalidSource }
         let input = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
@@ -97,6 +110,8 @@ public final class Capture {
     }
 
     private func addStream(name: String, contentType: String, kind: String, read: () throws -> Data) throws {
+        lock.lock()
+        defer { lock.unlock() }
         guard !finished else { throw CaptureError.finished }
         guard items.count < 1000 else { throw CaptureError.limitExceeded }
         let relative = "files/" + String(format: "%04d_", items.count + 1) + Self.safeName(name)
@@ -122,6 +137,8 @@ public final class Capture {
     }
 
     @discardableResult public func commit() throws -> URL {
+        lock.lock()
+        defer { lock.unlock() }
         guard !finished else { throw CaptureError.finished }
         guard !items.isEmpty else { throw CaptureError.empty }
         let manifest = Manifest(schemaVersion: 1, batchId: batchId, createdAt: ISO8601DateFormatter().string(from: Date()),
@@ -138,6 +155,8 @@ public final class Capture {
     }
 
     public func fail(_ error: Error) {
+        lock.lock()
+        defer { lock.unlock() }
         guard !finished else { return }
         let failed = root.appendingPathComponent("Failed/\(batchId)", isDirectory: true)
         do {
