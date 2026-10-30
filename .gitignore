@@ -14,3 +14,6 @@ private/
 Inbox/
 Diagnostics/
 .DS_Store
+.build/
+node_modules/
+*.tgz

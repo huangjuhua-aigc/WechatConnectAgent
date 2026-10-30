@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>com.wechatconnectagent.receiver.share</string>
+<key>CFBundleName</key><string>ChatInboxShare</string>
+<key>CFBundleDisplayName</key><string>聊天收件箱</string>
+<key>CFBundleExecutable</key><string>ChatInboxShare</string>
+<key>CFBundlePackageType</key><string>XPC!</string>
+<key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+<key>CFBundleShortVersionString</key><string>0.2.0</string>
+<key>CFBundleVersion</key><string>200</string>
+<key>LSMinimumSystemVersion</key><string>13.0</string>
+<key>NSExtension</key><dict>
+  <key>NSExtensionPointIdentifier</key><string>com.apple.share-services</string>
+  <key>NSExtensionPrincipalClass</key><string>ChatInboxShareViewController</string>
+  <key>NSExtensionAttributes</key><dict>
+    <key>NSExtensionActivationRule</key><dict>
+      <key>NSExtensionActivationDictionaryVersion</key><integer>2</integer>
+      <key>NSExtensionActivationSupportsFileWithMaxCount</key><integer>1000</integer>
+      <key>NSExtensionActivationSupportsImageWithMaxCount</key><integer>1000</integer>
+      <key>NSExtensionActivationSupportsMovieWithMaxCount</key><integer>1000</integer>
+      <key>NSExtensionActivationSupportsWebURLWithMaxCount</key><integer>1000</integer>
+      <key>NSExtensionActivationSupportsText</key><true/>
+    </dict>
+  </dict>
+</dict>
+</dict></plist>

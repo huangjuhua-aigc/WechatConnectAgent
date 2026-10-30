@@ -1,0 +1,41 @@
+name: macOS receiver
+on:
+  push:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Swift receiver and provider tests
+        run: swift test --package-path macos
+      - name: Build universal signed app and share extension
+        run: bash macos/build.sh "$PWD/dist/macos-build"
+      - name: Python contract tests against the compiled Mac receiver
+        run: |
+          export CHAT_RECEIVER_EXE="$PWD/dist/macos-build/ChatInbox.app/Contents/MacOS/ChatInbox"
+          python -m unittest discover -s skills/wechat-chat-select/scripts -p 'test_*.py' -v
+          "$CHAT_RECEIVER_EXE" --identity
+      - name: Check extension registration
+        run: |
+          APP="$PWD/dist/macos-build/ChatInbox.app"
+          /usr/bin/pluginkit -a "$APP/Contents/PlugIns/ChatInboxShare.appex"
+          /usr/bin/pluginkit -m -i com.wechatconnectagent.receiver.share
+      - name: Archive app while preserving executable permissions
+        if: matrix.runner == 'macos-15'
+        run: ditto -c -k --keepParent dist/macos-build/ChatInbox.app dist/ChatInbox-macos-universal.zip
+      - uses: actions/upload-artifact@v7.0.2
+        if: matrix.runner == 'macos-15'
+        with:
+          name: macos-universal-app
+          path: dist/ChatInbox-macos-universal.zip
+          retention-days: 7

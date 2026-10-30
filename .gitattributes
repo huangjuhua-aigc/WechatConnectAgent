@@ -3,3 +3,7 @@
 *.py text eol=lf
 *.md text eol=lf
 *.yml text eol=lf
+*.sh text eol=lf
+*.swift text eol=lf
+*.json text eol=lf
+*.cjs text eol=lf
