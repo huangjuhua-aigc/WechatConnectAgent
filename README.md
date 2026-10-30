@@ -11,7 +11,7 @@
 打开普通的 **Windows PowerShell** 窗口，粘贴这一行：
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.1.8/install.ps1')))
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.1.9/install.ps1')))
 ```
 
 安装器会下载并校验固定版本的 Release 安装包，检查依赖，安装接收器，并为三个 Agent 设置技能入口。无需 Git、Node.js、npm、Visual Studio 或 Windows SDK。
@@ -21,7 +21,7 @@
 - 如果有旧的同名技能，会询问是否备份并替换；不会直接覆盖。
 - Windows UAC 需要你本人点击。“一键安装”不代表静默批准系统信任。
 
-如果网络无法打开 GitHub，可从 [Releases](https://github.com/huangjuhua-aigc/WechatConnectAgent/releases) 手动下载 `WechatConnectAgent-windows-x64-0.1.8.zip`，解压到普通目录后，在该目录打开 PowerShell：
+如果网络无法打开 GitHub，可从 [Releases](https://github.com/huangjuhua-aigc/WechatConnectAgent/releases) 手动下载 `WechatConnectAgent-windows-x64-0.1.9.zip`，解压到普通目录后，在该目录打开 PowerShell：
 
 ```powershell
 & ([scriptblock]::Create((Get-Content -Raw -Encoding UTF8 .\setup.ps1))) -BundleRoot (Get-Location).Path

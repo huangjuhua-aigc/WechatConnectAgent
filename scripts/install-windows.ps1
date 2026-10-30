@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$true)][string]$BundleRoot,
-    [string]$InstallRoot = (Join-Path $env:LOCALAPPDATA 'WechatConnectAgent'),
+    [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.wechat-connect-agent'),
     [string]$AgentHome = [Environment]::GetFolderPath('UserProfile'),
     [switch]$NonInteractive,
     [switch]$InstallPython,

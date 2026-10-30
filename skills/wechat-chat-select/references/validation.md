@@ -1,5 +1,12 @@
 # 验证记录
 
+## 0.1.9 安装路径修正（2026-10-30）
+
+- 0.1.8 从开发目录安装通过，但随后从 GitHub 公开入口安装发现 AppX 错误 0x80073CF0 / 0x80070003。
+- 确认下载文件被打包桌面 Agent 重定向到其 LocalCache，AppX 服务无法通过原 AppData 路径读取。
+- 0.1.9 将下载与技能安装根目录改为 `%USERPROFILE%\.wechat-connect-agent`；与 Inbox 一样使用普通用户目录，避免跨进程不可见。
+- 原生接收和提示卡代码未改动。首次 Python 下载、首次证书确认仍需在干净机器单独验证；macOS 仍未实现。
+
 ## 0.1.8 独立仓库和安装包（2026-10-30）
 
 - 独立为 WechatConnectAgent，提供 Windows 固定版本与 SHA-256 校验的下载入口、完整 Release ZIP 和安装说明。

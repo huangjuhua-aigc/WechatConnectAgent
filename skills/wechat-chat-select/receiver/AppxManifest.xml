@@ -5,7 +5,7 @@
   xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap uap10 desktop6 rescap">
-  <Identity Name="AgentChat.Receiver" Publisher="CN=Agent Chat Receiver" Version="0.1.8.0" ProcessorArchitecture="x64" />
+  <Identity Name="AgentChat.Receiver" Publisher="CN=Agent Chat Receiver" Version="0.1.9.0" ProcessorArchitecture="x64" />
   <Properties><DisplayName>Chat Inbox</DisplayName><PublisherDisplayName>Agent Chat Receiver</PublisherDisplayName><Logo>Assets\Logo150.png</Logo><desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization></Properties>
   <Resources><Resource Language="zh-cn" /><Resource Language="en-us" /></Resources>
   <Dependencies><TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26200.0" /></Dependencies>

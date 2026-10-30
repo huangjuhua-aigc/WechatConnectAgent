@@ -16,10 +16,10 @@
 在普通、非管理员的 Windows PowerShell 中执行：
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.1.8/install.ps1')))
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.1.9/install.ps1')))
 ```
 
-命令和安装器固定到 `v0.1.8`，包的 SHA-256 固定在该脚本里。不会在同一次安装中漂移到其他版本。它不修改 PowerShell 执行策略；如果组织策略禁止执行，联系管理员，不要绕过组织策略。
+命令和安装器固定到 `v0.1.9`，包的 SHA-256 固定在该脚本里。不会在同一次安装中漂移到其他版本。它不修改 PowerShell 执行策略；如果组织策略禁止执行，联系管理员，不要绕过组织策略。
 
 你也可以先下载脚本查看，再运行同一份文件；或从 Releases 下载 ZIP 并核对 `SHA256SUMS.txt` 后使用其中的 `setup.ps1`。
 
@@ -41,13 +41,13 @@ SHA-1 在这里用于证书指纹标识；安装包和可执行文件的完整�
 只下载并校验，暂不安装：
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.1.8/install.ps1'))) -DownloadOnly
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.1.9/install.ps1'))) -DownloadOnly
 ```
 
 已阅读上述行为，并要预先授权依赖安装、该证书信任以及旧技能备份替换：
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.1.8/install.ps1'))) -InstallPython -TrustCertificate -ReplaceExistingSkill
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.1.9/install.ps1'))) -InstallPython -TrustCertificate -ReplaceExistingSkill
 ```
 
 这些选项不能替你点击 UAC。`-NonInteractive` 关闭命令行询问；缺少必要授权就报错，不代表绕过授权。
@@ -62,14 +62,14 @@ SHA-1 在这里用于证书指纹标识；安装包和可执行文件的完整�
 
 程序由 MSIX 安装，包标识 `AgentChat.Receiver`，微信中显示“聊天收件箱”。
 
-- 技能源：`%LOCALAPPDATA%\WechatConnectAgent\versions\0.1.8\skills\wechat-chat-select`
+- 技能源：`%USERPROFILE%\.wechat-connect-agent\versions\0.1.9\skills\wechat-chat-select`
 - Codex / Kimi Code 入口：`%USERPROFILE%\.agents\skills\wechat-chat-select`
 - Claude Code 入口：`%USERPROFILE%\.claude\skills\wechat-chat-select`
 - 收件箱：`%USERPROFILE%\.agent-chat-receiver\Inbox`
-- 下载缓存：`%LOCALAPPDATA%\WechatConnectAgent\downloads`
+- 下载缓存：`%USERPROFILE%\.wechat-connect-agent\downloads`
 - 被替换的技能：`%USERPROFILE%\.wechat-connect-agent-skill-backups\<时间与唯一编号>`
 
-入口是目录联接，共用同一份技能。不要手动移动或删除当前源目录。已有不同的同名技能时，先得到同意才移动到备份位置；原文件或原联接都会保留。重复安装同一版本会核对文件，不覆盖本地修改。更新时使用新版 Release 对应的命令，旧版本目录和聊天文件不会自动删除。
+下载和安装目录放在用户主目录，避免打包桌面 Agent 对 AppData 的文件重定向让 Windows AppX 服务或其他 Agent 无法访问。入口是目录联接，共用同一份技能。不要手动移动或删除当前源目录。已有不同的同名技能时，先得到同意才移动到备份位置；原文件或原联接都会保留。重复安装同一版本会核对文件，不覆盖本地修改。更新时使用新版 Release 对应的命令，旧版本目录和聊天文件不会自动删除。
 
 如果你还保留旧版 `.codex/skills/wechat-chat-select`，先确认来源并备份移出技能扫描目录，避免同名重复。WSL、容器和远程 Agent 需要单独提供能访问本机文件的映射路径；此安装器面向原生 Windows Agent。
 

@@ -11,11 +11,11 @@ if ($env:OS -ne 'Windows_NT') {
     throw 'This release supports Windows x64 only. A macOS receiver is not available yet.'
 }
 # Updated by scripts/package-release.py. The archive hash is pinned, not fetched alongside the download.
-$releaseVersion = '0.1.8'
-$archiveSha256 = 'ced267c319c2185db12b161c0caccbbfa6a38ddc6b37cee6ebdee4a40b8b83ca'
+$releaseVersion = '0.1.9'
+$archiveSha256 = '51d6f6513e5c2ea81de2c8fe36931c71dc94ddaf618bdbd0d9742910fd00b2ae'
 $assetName = 'WechatConnectAgent-windows-x64-' + $releaseVersion + '.zip'
 $url = 'https://github.com/huangjuhua-aigc/WechatConnectAgent/releases/download/v' + $releaseVersion + '/' + $assetName
-$downloadRoot = Join-Path $env:LOCALAPPDATA ('WechatConnectAgent\downloads\' + [Guid]::NewGuid().ToString('N'))
+$downloadRoot = Join-Path ([Environment]::GetFolderPath('UserProfile')) ('.wechat-connect-agent\downloads\' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $downloadRoot -Force | Out-Null
 $archive = Join-Path $downloadRoot $assetName
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
