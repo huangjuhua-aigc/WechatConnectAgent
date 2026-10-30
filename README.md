@@ -1,79 +1,42 @@
 # WechatConnectAgent
 
-把你选中的微信聊天和附件保存为本地文件，供 Codex、Claude Code、Kimi Code 等 Agent 读取和分析。
+把选中的微信聊天和附件保存为本地文件，供 Codex、Claude Code、Kimi Code 等 Agent 读取和分析。独立运行，无需 WeChatBridge。
 
-**当前支持 Windows x64。macOS 接收器尚未实现，请勿在 Mac 上运行 Windows 安装命令。**
+## 一条命令安装
 
-流程：微信中选择聊天 → 分享给“聊天收件箱” → 文件保存到本机 → Agent 读取。接收器不查询微信数据库，不自动发消息，也不需要安装 WeChatBridge。它不会自行调用模型或上传文件；Agent 分析数据时遵循该 Agent 的服务和配置。
+先安装 **Node.js 20+（含 npm/npx）**，在 Windows 普通终端或 Mac 终端运行同一条命令：
 
-## Windows 一键安装
-
-打开普通的 **Windows PowerShell** 窗口，粘贴这一行：
-
-```powershell
-& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.1.9/install.ps1')))
+```sh
+npx --yes https://github.com/huangjuhua-aigc/WechatConnectAgent/releases/download/v0.2.0/wechat-connect-agent-0.2.0.tgz
 ```
 
-安装器会下载并校验固定版本的 Release 安装包，检查依赖，安装接收器，并为三个 Agent 设置技能入口。无需 Git、Node.js、npm、Visual Studio 或 Windows SDK。
+安装器自动识别系统和芯片，下载对应接收器并验证固定的 SHA-256，不需要用户选择系统。这是 GitHub Releases 分发的 npm 格式安装器，**尚未发布到 npm registry**。
 
-- Python 已有 3.9+ 就直接复用；没有时会询问是否通过 winget 安装 Python 3.14。
-- 当前接收器使用自签名证书。首次安装会展示发布者和完整指纹，询问是否信任，然后弹出 Windows 管理员确认。只添加到本机 `TrustedPeople`，不添加根证书，不开启开发者模式，不修改执行策略。
-- 如果有旧的同名技能，会询问是否备份并替换；不会直接覆盖。
-- Windows UAC 需要你本人点击。“一键安装”不代表静默批准系统信任。
+| 系统 | 接收器 | 首次确认 |
+| --- | --- | --- |
+| Windows 10 19041+ / 11 x64 | 签名 MSIX | 指定证书信任，必要时本人点击 UAC |
+| macOS 13+，Intel / Apple Silicon | Universal App + 分享扩展 | **测试版，无 Developer ID 和公证**；可能需要系统设置允许打开 |
 
-如果网络无法打开 GitHub，可从 [Releases](https://github.com/huangjuhua-aigc/WechatConnectAgent/releases) 手动下载 `WechatConnectAgent-windows-x64-0.1.9.zip`，解压到普通目录后，在该目录打开 PowerShell：
+Windows ARM64、Linux 暂不支持。另需 **Python 3.9+**（无 pip 依赖）、已登录的桌面微信和本地 Agent。缺 Python 时，Windows 可经确认使用 winget 安装；Mac 已有 Homebrew 时可经确认安装，否则按提示安装 Python。发布包不需要 Git、SDK 或 Xcode。
 
-```powershell
-& ([scriptblock]::Create((Get-Content -Raw -Encoding UTF8 .\setup.ps1))) -BundleRoot (Get-Location).Path
-```
+- [Mac 系统确认及安装位置](docs/install-macos.md)
+- [Windows 证书与不依赖 Node 的安装方式](docs/install-windows.md)
+- [平台状态](docs/platforms.md) · [发布文件](https://github.com/huangjuhua-aigc/WechatConnectAgent/releases/tag/v0.2.0)
 
-更详细的依赖、校验、更新、卸载和安装参数见 [Windows 安装说明](docs/install-windows.md)。本项目没有发布 npm 包；上述命令是当前正式安装入口。
+可追加 `--dry-run` 查看检测结果，`--download-only` 只下载校验，`--help` 查看参数。已有不同同名技能时先提示备份；已同意的自动化环境可用 `--replace-existing-skill --non-interactive`。
 
-## 使用
+## 使用与验证
 
-1. 安装并登录 Windows 微信，以及你选用的一个 Agent。
-2. 安装完成后重新打开 Agent 会话，让它发现 `wechat-chat-select` 技能。
-3. 对 Agent 说：“把我与某位联系人的最近 5 条消息保存到本地，并总结待办事项。”
-4. Agent 有可用桌面工具时，可按描述选择和分享消息；没有桌面工具时，你手动在微信多选 → 合并转发 → 其他应用 → 聊天收件箱，Agent 再读取收到的文件。
-5. 保存完成会显示右下角置顶提示卡，展示文件位置，5 秒后自动关闭。点“打开Explorer”可定位文件，点“我知道了”可立即关闭。
+安装后重新打开 Agent 会话，例如：“使用 wechat-chat-select，把我跟某位联系人的最近 5 条消息保存并总结。”有桌面工具的 Agent 可按描述选择；没有桌面工具时由用户多选并分享给“聊天收件箱”。安装技能不会增加桌面控制能力。
 
-默认收件箱：`%USERPROFILE%\.agent-chat-receiver\Inbox`。原始 ZIP、附件和清单留在本地。接收器的文件数不等于聊天消息数，Agent 需要核对选取范围。
+完整批次保存到 `~/.agent-chat-receiver/Inbox/Ready`，包含原件和 SHA-256 清单。成功后显示路径、打开Explorer/Finder 和“我知道了”按钮；提示卡置顶，5 秒自动关闭。Agent 直接读取本地文件。
 
-## 支持范围
+文件、ZIP、文字等实际格式由微信提供。未知格式保留原件，不声称已经理解；链接不自动访问、附件不执行。接收器没有网络上传、模型调用或自动回复。
 
-| 项目 | 当前状态 |
-| --- | --- |
-| Windows 10 build 19041+ / Windows 11 x64 | 提供签名 MSIX，Windows 11 本机验证通过 |
-| macOS Intel / Apple Silicon | 尚无原生接收器或安装包；可用 Python 处理已有导出文件 |
-| Windows ARM64、Linux | 尚未支持原生接收 |
-| Codex | 技能接入和本机微信选择、接收、文本解析已实测 |
-| Claude Code / Kimi Code | 技能目录和本地脚本已接入；各自的完整桌面操作尚未实测 |
-| 纯文本聊天 | 微信真实分享已验证 |
-| 文件、链接、HTML、RTF、位图等 | 有保存处理逻辑；并非每种微信实际载荷都已实测 |
+Windows 已验证真实微信分享。Mac 已在 Intel 和 Apple Silicon runner 验证编译、NSItemProvider、原生导入、签名和扩展注册。**Mac 微信真实分享、首次系统确认和提示卡视觉效果仍待真人 Mac 验证。**
 
-自动选择需要 Agent 自身可用的桌面控制工具，技能本身不提供桌面控制引擎。不应把某一个 Agent 的工具名称当作其他 Agent 也有的能力。文件分析也需要相应解析工具。
+源码：通用技能 `skills/wechat-chat-select/`；Windows 接收器 `skills/wechat-chat-select/receiver/`；Mac 接收器 `macos/`；统一安装器 `bin/`、`lib/`。
 
-## 仓库内容
+[构建与发布](docs/development.md) · [详细验证记录](skills/wechat-chat-select/references/validation.md)
 
-```text
-install.ps1                         固定版本、固定哈希的下载入口
-scripts/install-windows.ps1          本地安装器（Release 中名为 setup.ps1）
-scripts/package-release.py           生成发布包和校验信息
-skills/wechat-chat-select/
-  SKILL.md                          Agent 技能
-  scripts/                          Python 解析、导出和测试
-  receiver/src/                     Windows 接收器 C# 源码
-  receiver/                         MSIX 清单、构建、安装和证书脚本
-  references/                       使用流程与验证记录
-docs/                               安装、平台差异和维护说明
-```
-
-从源码构建和运行测试见 [开发说明](docs/development.md)。安装包在 Releases，不需要下载整个开发环境。仓库和安装包不包含聊天记录、账号凭据或签名私钥。
-
-## 许可与来源
-
-MIT 许可。Windows 分享注册与 Staging/Ready 收件箱设计参考了 [WeChatBridge](https://github.com/freestylefly/WeChatBridge)，保留了其 [版权及 MIT 许可](skills/wechat-chat-select/receiver/THIRD_PARTY_NOTICES.txt)。本项目是独立接收器，不由微信官方提供，也不依赖 WeChatBridge 应用。
-
-## English
-
-WechatConnectAgent saves explicitly selected WeChat messages and attachments through a standalone Windows share target, then lets an Agent read local files. The Windows x64 receiver and shared `SKILL.md` support Codex, Claude Code and Kimi Code workflows. Desktop automation requires the Agent's own desktop tools; manual sharing also works. The receiver never queries the WeChat database, sends chat messages, or calls an AI service. A native macOS receiver is **not available**. See [platform differences](docs/platforms.md) and [development](docs/development.md).
+MIT License。分享和收件箱设计参考 [WeChatBridge](https://github.com/freestylefly/WeChatBridge)，保留其版权说明。聊天落到本机；Agent 后续数据处理遵循所用 Agent 的配置。

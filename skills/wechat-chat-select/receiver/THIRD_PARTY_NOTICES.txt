@@ -1,10 +1,12 @@
-The Windows Share Target registration and Staging/Ready inbox design were
+The Windows Share Target registration, Staging/Ready inbox design, and macOS
+NSItemProvider lifetime, SwiftPM share-extension packaging and shared-directory
+patterns were
 adapted from freestylefly/WeChatBridge, commit
 3d181a2cc29a9e0b2534f2c36df4ea8d918c0d32.
 https://github.com/freestylefly/WeChatBridge
 
 This standalone receiver does not load or require the WeChatBridge application.
-It uses Microsoft Windows APIs. The upstream license is retained below.
+It uses native Microsoft Windows and Apple macOS APIs. The upstream license is retained below.
 
 MIT License
 

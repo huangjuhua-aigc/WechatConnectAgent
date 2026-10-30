@@ -1,53 +1,43 @@
-# Development and release
+# Development and releases
 
-The self-contained skill lives at `skills/wechat-chat-select`. The receiver is C# 5 / .NET Framework 4.8 and uses public Windows Share APIs. The Python tools use only the standard library (Python 3.9+).
+Windows: C#/.NET 4.8, SDK 19041+. Mac: Swift 5.9+, macOS 13+, AppKit/Foundation. Readers: Python 3.9+ standard library. Bootstrap: Node.js 20+, zero npm dependencies or lifecycle scripts.
 
-## Tests
-
-```powershell
-python -m unittest discover -s skills/wechat-chat-select/scripts -p 'test_*.py' -v
-python -m unittest discover -s scripts -p 'test_*.py' -v
-```
-
-Without `CHAT_RECEIVER_EXE`, native receiver import tests are skipped. To test the actual executable:
+## Build and test
 
 ```powershell
-$env:CHAT_RECEIVER_EXE = Join-Path (Get-AppxPackage -Name AgentChat.Receiver).InstallLocation 'AgentChatReceiver.exe'
-python -m unittest discover -s skills/wechat-chat-select/scripts -p 'test_*.py' -v
-```
-
-The installer integration check runs against an extracted release bundle with an isolated home and installation root. It does not import certificates or change the installed MSIX package:
-
-```powershell
-python scripts/test_installer.py --bundle <absolute-extracted-bundle>
-```
-
-## Build
-
-Use Windows x64, PowerShell 7, .NET Framework 4.8 and Windows SDK 19041 or newer. A standalone dotnet SDK or Visual Studio IDE is not required by the build script.
-
-```powershell
-./skills/wechat-chat-select/receiver/build.ps1 -OutputDirectory <private-build-directory> -Sign
-```
-
-The first signed build creates a **private signing key** in `<private-build-directory>/private/signing.pfx`. Keep it outside this repository and never publish it. Future builds must reuse that directory/key to update an existing installation. The public certificate can be shipped. A different signing key requires a deliberate publisher/trust migration; do not silently change the installer's pinned certificate.
-
-Self-signed builds are for users who explicitly trust the displayed certificate. A publicly trusted distribution certificate or Store release would require a separate release/signing setup. Never commit certificate-store exports or credentials.
-
-## Package and publish
-
-1. Update the MSIX version and the release version shown in the README, docs and installer.
-2. Build the signed receiver. Run the tests against the installed executable and review the actual receipt window.
-3. Create an archive from explicitly allowed source and build files:
-
-```powershell
+pwsh -NoProfile -File skills/wechat-chat-select/receiver/build.ps1 -OutputDirectory <private-build-directory> -Sign
 python scripts/package-release.py --build <private-build-directory> --output dist
 ```
 
-The script generates the Windows ZIP, `SHA256SUMS.txt`, a portable release manifest and release-notes text, and pins the archive hash in `install.ps1`. It rejects private keys and unexpected binary inputs. The outer bootstrap is intentionally outside the ZIP to avoid a checksum cycle; `setup.ps1` inside the ZIP is the local installer. Re-package after any bundled source/docs change, then commit the final source and bootstrap hash together.
+Reuse the authorized signing key. Keep private build files outside the repo; never publish PFX, private metadata or chats. A new certificate requires a deliberate installer update and new user trust.
 
-4. Test the extracted bundle with `scripts/test_installer.py`. The Windows PowerShell parser must accept all installer scripts. Review `git diff --cached` and the ZIP listing for private data.
-5. Commit and push, create the corresponding `v<version>` tag, and publish a GitHub Release with the ZIP, checksum file and manifest. Upload the standalone MSIX and public certificate only if useful; the complete ZIP is the supported installer input.
-6. Download from the public release with `install.ps1 -DownloadOnly`, check the same SHA-256, and test the documented installation command. Never describe an unpublished or untested URL as working.
+On a Mac:
 
-The CI workflow runs parser tests and Python unit tests. A passing CI run does not validate real WeChat sharing, GUI behavior, certificate installation, or other Agents' desktop tools. See the skill's [validation record](../skills/wechat-chat-select/references/validation.md).
+```sh
+swift test --package-path macos
+bash macos/build.sh "$PWD/dist/macos-build"
+python scripts/package-release.py --macos-app dist/macos-build/ChatInbox.app --output dist
+```
+
+Build combines architectures, signs the extension before the app, verifies signatures. Default SIGN_IDENTITY=- is ad-hoc test signing, not Developer ID or notarization. Do not disable Gatekeeper or remove quarantine. Production signing needs separate configuration.
+
+NSItemProvider temporary files are copied inside callbacks. Staging streams through SHA-256; Ready is committed atomically after successful writes. Receipt URLs carry a UUID resolved inside Ready; launching the receipt is best effort after saving.
+
+```sh
+npm test
+python -m unittest discover -s scripts -p 'test_*.py' -v
+python -m unittest discover -s skills/wechat-chat-select/scripts -p 'test_*.py' -v
+```
+
+Set CHAT_RECEIVER_EXE to enable native import tests. Mac CI runs on macos-15 (ARM64) and macos-15-intel, including provider handling, Python contract, registration and installer integration. The universal app is retained as a workflow artifact.
+
+## Publish
+
+1. Align npm, Windows x.y.z.0, Mac x.y.z/build number and bootstrap versions.
+2. Package both platforms to the same output directory. Mac executable ZIP modes are explicit, so packaging an unmodified downloaded Mac app on Windows works. Never modify signed files.
+3. Run `python scripts/assemble-release.py --output dist`, then `npm pack --pack-destination dist` to create the GitHub-hosted npm installer with pinned archive hashes.
+4. Generate SHA256SUMS.txt for ZIPs, tarball, release.json and install.ps1. Review allowed payloads and diffs for private data. Outer bootstrap is outside ZIPs to avoid checksum cycles.
+5. Commit source/hashes, push, tag and publish a prerelease with both ZIPs, tarball, checksums, release.json and install.ps1.
+6. Test the exact public npx URL on Windows and both Mac runners. GUI, real WeChat, security confirmation and Agent sessions remain separate tests.
+
+The installer verifies before execution, preserves conflicting skills, and detects OS/architecture. Ordinary user home avoids Windows AppData redirection. Use --bundle with a verified extracted release for offline tests.

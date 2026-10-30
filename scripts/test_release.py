@@ -3,6 +3,7 @@ from pathlib import Path
 import tempfile
 import unittest
 import zipfile
+import plistlib
 from importlib.util import spec_from_file_location, module_from_spec
 
 spec = spec_from_file_location("package_release", Path(__file__).with_name("package-release.py"))
@@ -57,6 +58,25 @@ class ReleaseTests(unittest.TestCase):
             (root / "skills/wechat-chat-select/accidental.pfx").write_bytes(b"private fixture")
             with self.assertRaisesRegex(ValueError, "Unexpected source"):
                 package.collect_payload(root, build)
+
+    def test_mac_package_preserves_executable_modes_and_integrity(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root, _ = self.fixture(Path(temporary))
+            app = Path(temporary) / "ChatInbox.app"
+            (app / "Contents/MacOS").mkdir(parents=True)
+            (app / "Contents/Info.plist").write_bytes(plistlib.dumps({
+                "CFBundleIdentifier": "com.wechatconnectagent.receiver", "CFBundleShortVersionString": "0.2.0"}))
+            (app / "Contents/MacOS/ChatInbox").write_bytes(b"synthetic executable")
+            version, payload = package.collect_macos(root, app)
+            self.assertEqual(version, "0.2.0")
+            self.assertEqual(json.loads(payload["bundle.json"])["platform"], "macos-universal")
+            for name, digest in json.loads(payload["files.sha256.json"]).items():
+                self.assertEqual(package.sha256(payload[name]), digest)
+            destination = Path(temporary) / "mac.zip"
+            package.write_archive(destination, payload)
+            with zipfile.ZipFile(destination) as archive:
+                entry = archive.getinfo("receiver-macos/ChatInbox.app/Contents/MacOS/ChatInbox")
+                self.assertEqual((entry.external_attr >> 16) & 0o777, 0o755)
 
 
 if __name__ == "__main__":

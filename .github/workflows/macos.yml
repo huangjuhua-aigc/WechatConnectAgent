@@ -30,6 +30,13 @@ jobs:
           APP="$PWD/dist/macos-build/ChatInbox.app"
           /usr/bin/pluginkit -a "$APP/Contents/PlugIns/ChatInboxShare.appex"
           /usr/bin/pluginkit -m -i com.wechatconnectagent.receiver.share
+      - name: Unified installer unit tests
+        run: npm test
+      - name: Package and install on the detected Mac architecture
+        run: |
+          python scripts/package-release.py --macos-app dist/macos-build/ChatInbox.app --output dist
+          ditto -x -k dist/WechatConnectAgent-macos-universal-0.2.0.zip dist/install-bundle
+          node scripts/test-macos-installer.cjs dist/install-bundle
       - name: Archive app while preserving executable permissions
         if: matrix.runner == 'macos-15'
         run: ditto -c -k --keepParent dist/macos-build/ChatInbox.app dist/ChatInbox-macos-universal.zip

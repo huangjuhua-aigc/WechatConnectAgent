@@ -8,10 +8,10 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 if ($env:OS -ne 'Windows_NT') {
-    throw 'This release supports Windows x64 only. A macOS receiver is not available yet.'
+    throw 'This PowerShell entry is for Windows x64. Use the unified npx command on macOS.'
 }
 # Updated by scripts/package-release.py. The archive hash is pinned, not fetched alongside the download.
-$releaseVersion = '0.1.9'
+$releaseVersion = '0.2.0'
 $archiveSha256 = '51d6f6513e5c2ea81de2c8fe36931c71dc94ddaf618bdbd0d9742910fd00b2ae'
 $assetName = 'WechatConnectAgent-windows-x64-' + $releaseVersion + '.zip'
 $url = 'https://github.com/huangjuhua-aigc/WechatConnectAgent/releases/download/v' + $releaseVersion + '/' + $assetName

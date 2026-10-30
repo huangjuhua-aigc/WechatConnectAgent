@@ -55,7 +55,7 @@ function Test-Bundle([string]$Root) {
     }
 }
 
-if ($env:OS -ne 'Windows_NT') { throw 'Windows x64 is required. macOS native receiving is not implemented.' }
+if ($env:OS -ne 'Windows_NT') { throw 'This PowerShell installer requires Windows x64. Use the unified npx command on macOS.' }
 if (![Environment]::Is64BitProcess -or [Environment]::OSVersion.Version.Build -lt 19041) {
     throw 'Open 64-bit Windows PowerShell on Windows 10 build 19041 or newer / Windows 11.'
 }

@@ -1,0 +1,7 @@
+{
+  "version": "0.2.0",
+  "assets": {
+    "windows-x64": { "url": "", "sha256": "" },
+    "macos-universal": { "url": "", "sha256": "" }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "wechat-connect-agent",
+  "version": "0.2.0",
+  "description": "Install the native WeChat chat receiver and Agent skill for Windows or macOS",
+  "license": "MIT",
+  "repository": "github:huangjuhua-aigc/WechatConnectAgent",
+  "bin": { "wechat-connect-agent": "bin/install.cjs" },
+  "files": ["bin/", "lib/", "release-assets.json", "LICENSE"],
+  "engines": { "node": ">=20" },
+  "scripts": { "test": "node --test tests/*.test.cjs" }
+}

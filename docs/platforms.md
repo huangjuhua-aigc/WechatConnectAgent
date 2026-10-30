@@ -1,17 +1,19 @@
-# Windows 与 macOS
+# 平台支持
 
-需要区分安装。共用的是 Agent 的 `SKILL.md` 约定、选取范围核对规则、本地 Inbox 数据契约和 Python 文件解析。负责从微信收取系统分享的原生程序取决于操作系统。
+统一入口自动识别系统和架构，不让用户选择。Windows ARM64、Linux 暂不支持。
 
-| 部分 | Windows 当前版本 | macOS |
+| 项目 | Windows | macOS |
 | --- | --- | --- |
-| 接收方式 | `windows.shareTarget` / `ShareOperation.Data` | 需开发并验证原生系统分享接收扩展 |
-| 原生包 | x64 MSIX + .NET Framework 4.8 | 需单独构建适用 Intel / Apple Silicon 的应用及扩展 |
-| 安装、签名 | Windows 代码签名和 AppX 注册 | 需要 macOS 自身的签名、分发和扩展安装流程 |
-| 自动操作微信 | 使用 Agent 的 Windows 桌面工具 | 需适配 Mac 微信界面及 Agent 的 macOS 桌面工具 |
-| 现成导出文件解析 | Python 标准库 | Python 脚本可以复用；不等于原生收件已支持 |
+| 系统 | Windows 10 19041+ / 11 x64，.NET 4.8 | macOS 13+，Intel / Apple Silicon |
+| API | windows.shareTarget / ShareOperation.Data | com.apple.share-services / NSItemProvider |
+| 包 | MSIX | Universal App + Share Extension |
+| 签名 | 自签名证书，需 TrustedPeople 信任 | ad-hoc 测试签名，无 Developer ID、公证 |
+| 原生自动测试 | 通过 | 两类 Mac runner 通过 |
+| 微信真实分享 | 本机纯文本已验证 | 待真人 Mac 验证 |
+| 提示卡 | 置顶、5 秒、Explorer | 置顶、5 秒、Finder；视觉待验证 |
 
-Apple 提供 [Share extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/Share.html) 机制，但这不保证某个微信版本一定提供兼容的入口或载荷。需要在真实 Mac 上验证多选、分享入口、各类附件、扩展生命周期、存储目录及签名安装。
+统一命令需要 Node.js 20+ / npm；解析需要 Python 3.9+。Windows 另有 PowerShell 入口。发布包不需要编译工具。
 
-本仓库当前没有 macOS 接收器、`.dmg`、`.pkg`、Homebrew 包或 Mac 一键安装命令。Windows 安装器在非 Windows 平台会直接拒绝。不能把 Windows 安装成功的结果当作 Mac 已支持。
+Codex / Kimi Code 共用 `~/.agents/skills/wechat-chat-select`，Claude Code 使用 `~/.claude/skills/wechat-chat-select`。同一用户共用 `~/.agent-chat-receiver/Inbox`。WSL、容器和远程主机需要文件映射。
 
-未来可以保留一个统一安装入口，根据平台分别选择经过验证的 Windows / macOS 发布资产；平台原生实现仍需分开。
+接收器不读取微信数据库，没有查询历史的隐藏接口。AI 选择依靠实际桌面工具；缺少桌面工具时由用户选择分享。跨 Agent 会话发送仍需用户指定目标。

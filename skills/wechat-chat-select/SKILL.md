@@ -1,6 +1,6 @@
 ---
 name: wechat-chat-select
-description: 根据用户描述，在 Windows 微信中按联系人、数量、时间或主题选取聊天，通过独立的“聊天收件箱”接收器保存 ZIP、附件及其他分享格式，再读取本地文件整理分析。兼容 Codex、Claude Code、Kimi Code 等支持 SKILL.md 与本地命令的 Agent，无需 WeChatBridge；有桌面控制工具时可自动选择，否则由用户分享。也支持纯文本原生复制，不读取微信数据库或自动回复。
+description: 根据用户描述，在 Windows 或 macOS 微信中按联系人、数量、时间或主题选取聊天，经独立“聊天收件箱”保存原件后读取分析。兼容 Codex、Claude Code、Kimi Code；有实际桌面工具时可自动选择，否则由用户分享。无需 WeChatBridge，不读取微信数据库或自动回复。
 ---
 
 # 微信聊天选取与接收
@@ -13,7 +13,7 @@ description: 根据用户描述，在 Windows 微信中按联系人、数量、�
 2. 阅读 [Agent 接入](references/agents.md)。将当前 `SKILL.md` 所在目录记为 `skillRoot`；所有脚本从这个目录定位，不假定 Agent 名称或固定安装路径。
 3. 自动操作微信前，先读取当前环境的桌面控制技能及权限规则。在 Codex Windows 环境使用已安装的 `computer-use:computer-use`；Claude Code、Kimi Code 使用它们实际可用的桌面工具。不能把某个 Agent 的工具名当通用 API。
 4. 没有桌面工具时，仍可使用接收器和脚本；请用户在微信完成选择和分享。不得声称自动选择成功。用户本人登录微信，不代填登录或安全验证。
-5. 导出混合媒体或格式未知的数据时读取 [接收器工作流](references/receiver.md)。接收器必须注册到 Windows 分享菜单；只有 Python 脚本不能接收系统分享。安装仅一次，后续各 Agent 共用。
+5. 先确定实际操作系统：Windows 导出读 [接收器工作流](references/receiver.md)；Mac 读 [macOS 工作流](references/macos-workflow.md)。原生接收器必须注册到对应系统分享菜单；只有 Python 不能接收系统分享。统一安装命令自动识别系统，安装一次供各 Agent 共用。
 
 ## 解释请求
 
@@ -30,7 +30,7 @@ description: 根据用户描述，在 Windows 微信中按联系人、数量、�
 
 ## 选择消息
 
-阅读 [Windows 选择工作流](references/windows-workflow.md)，通过实时界面操作。
+按实际系统阅读 [Windows 工作流](references/windows-workflow.md) 或 [macOS 工作流](references/macos-workflow.md)，通过实时界面操作，不把 Windows 控件名称和坐标套用到 Mac。
 
 - 最近 N 条：确认到达底部，以观察到的末条为固定锚点，从新到旧选择。日期分隔符不计入，系统消息以实际是否可选为准。
 - 时间范围：使用实际可用的搜索、日期导航或滚动定位边界。搜索结果不代表完整历史。
@@ -41,22 +41,22 @@ description: 根据用户描述，在 Windows 微信中按联系人、数量、�
 
 ## 接收与读取（默认）
 
-按 [接收器工作流](references/receiver.md) 操作：
+Windows 按 [接收器工作流](references/receiver.md)，Mac 按 [macOS 工作流](references/macos-workflow.md) 操作：
 
 1. 点击分享前执行 `chat_inbox.py prepare` 保存基线。
-2. 微信中走实际可见的“合并转发 → 其他应用/选择电脑中的应用 → 聊天收件箱”。不要发送给微信好友、文件传输助手或其他服务。
+2. Windows 使用实际可见的“合并转发 → 其他应用/选择电脑中的应用 → 聊天收件箱”；Mac 按实际界面的系统分享菜单选择该扩展，不假定菜单与 Windows 一样。不要发送给微信好友、文件传输助手或其他服务。
 3. 执行 `chat_inbox.py wait`，只处理基线之后的新 Ready 批次。每次等待不超过 60 秒。多个候选时先辨别，不任取最新文件。
-   接收完成后，屏幕右下角的置顶提示卡显示保存目录，5 秒后自动关闭，出现时不抢输入焦点。可点“打开Explorer”定位文件，或点“我知道了”立即关闭。弹窗关闭与否不影响已完成批次的读取。
+   接收完成后的置顶提示卡显示目录，5 秒后关闭，不抢输入焦点。Windows 点“打开Explorer”、Mac 点“打开Finder”定位文件；“我知道了”立即关闭。Mac 从扩展唤起提示卡是尽力而为，未出现窗口时仍应检查新 Ready 批次。
 4. 对明确的 `manifest.json` 执行 `export`，保存原始文件、可解包附件和 `index.json`。读取索引中的明确路径，按需解析附件。
 5. 对可识别聊天 TXT 核对条数、发言人、时间和首尾正文。多种表示可能重复同一消息；`parsedMessageCount` 不是自动去重后的选择计数，文件数也不是消息数。
 
-接收器支持 Windows 分享中的文件、文字、链接、HTML、RTF、位图。文件不受扩展名白名单限制，原始字节及 SHA-256 留存；未知自定义 DataFormat 只记录名称并标记未处理，不宣称完整。链接不自动访问，HTML 不自动渲染，附件不执行。不能将“保存了文件”当作“理解了内容”。
+Windows 支持文件、文字、链接、HTML、RTF、位图；Mac 从 NSItemProvider 优先接收 ZIP/归档，其次其他文件或数据表示，并记录来源格式。文件不受扩展名白名单限制，保存原件及 SHA-256。Windows 未处理 DataFormat 会标记；Mac 无法读取的项目使批次进入 Failed。链接不自动访问、HTML 不自动渲染、附件不执行。保存文件不代表理解内容。
 
 收到不认识的格式时保留原件、报告类型和缺少的解析能力；如需新增解析器，应以明确文件和样例为输入，保留原始文件及来源。不要尝试微信数据库、进程注入或假定存在隐藏读取 API。
 
 ## 纯文本快捷路径
 
-明确只需文字时可用 [原生复制](references/native-text.md)：多选后点击微信“复制”，确认成功，立即保存本次剪贴板为 UTF-8 TXT，再运行 `wechat_archive.py inspect-text`。不读取旧剪贴板或历史；不把截图转写当原始导出。媒体占位符不代表附件已保存。
+Windows 明确只需文字时可用 [原生复制](references/native-text.md)。Mac 仅当实际界面确有复制功能且当前桌面工具允许访问本次剪贴板时使用对应工具。确认复制成功后立即保存 UTF-8 TXT，再运行 `wechat_archive.py inspect-text`。不读取旧剪贴板或历史；截图转写不是原始导出，媒体占位符不代表附件已保存。
 
 ## Agent 消费与完成标准
 
@@ -70,6 +70,6 @@ description: 根据用户描述，在 Windows 微信中按联系人、数量、�
 
 ## 开发与验证
 
-接收器源码、构建及安装脚本在 `receiver/`。执行 `scripts/test_*.py` 测试解析、原始字节保留、路径约束与失败批次；通过 `CHAT_RECEIVER_EXE` 指定已编译接收器以运行实际导入测试。没有该变量时原生导入测试会跳过，不能宣称接收器已测。
+Windows 源码在 `receiver/`；Mac 源码在独立仓库的 `macos/`。执行 `scripts/test_*.py` 测试解析、原始字节保留、路径约束与失败批次；通过 `CHAT_RECEIVER_EXE` 指定原生程序。未设置时原生测试跳过，不能宣称已测。
 
-本机验证：2026-10-30 独立接收器 0.1.3 完成微信真实分享 → ZIP 落盘 → 5 条文本解析，并与界面选择及前次原生导出逐条一致；对已安装版本执行 21 项测试全部通过。媒体和其他格式的保存通过合成导入测试，尚未逐类完成微信真实分享测试。Claude Code / Kimi Code 的技能目录与共用脚本已接入，尚未分别验证其 Agent 会话和桌面自动操作。详见 [验证记录](references/validation.md)。
+Windows 已验证真实微信纯文本分享和 21 项接收/解析测试。Mac 0.2.0 为测试版，两类 Mac runner 已验证原生编译、NSItemProvider 和合成导入，真实微信分享与提示卡视觉仍待验证。媒体格式未逐类真实分享；Claude Code / Kimi Code 的完整会话及桌面操作也未分别验证。详见 [验证记录](references/validation.md)。

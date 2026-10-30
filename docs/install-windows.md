@@ -9,17 +9,17 @@
 - Python 3.9+。全部脚本只用标准库，无需 `pip install`。缺失时安装器可经你确认后使用 `winget install --exact --id Python.Python.3.14 --source winget --scope user`。
 - 自动选择微信消息需要当前 Agent 的桌面控制工具；手动选择则不需要。
 
-使用 Release 安装包无需 Node.js、npm、Git、Windows SDK 或 Visual Studio。Windows PowerShell 5.1 即可运行安装器。
+README 中的统一 npx 命令需要 Node.js 20+。以下 Windows 专用 PowerShell 入口无需 Node.js、npm、Git、Windows SDK 或 Visual Studio，Windows PowerShell 5.1 即可运行。
 
 ## 安装命令
 
 在普通、非管理员的 Windows PowerShell 中执行：
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.1.9/install.ps1')))
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.2.0/install.ps1')))
 ```
 
-命令和安装器固定到 `v0.1.9`，包的 SHA-256 固定在该脚本里。不会在同一次安装中漂移到其他版本。它不修改 PowerShell 执行策略；如果组织策略禁止执行，联系管理员，不要绕过组织策略。
+命令和安装器固定到 `v0.2.0`，包的 SHA-256 固定在该脚本里。不会在同一次安装中漂移到其他版本。它不修改 PowerShell 执行策略；如果组织策略禁止执行，联系管理员，不要绕过组织策略。
 
 你也可以先下载脚本查看，再运行同一份文件；或从 Releases 下载 ZIP 并核对 `SHA256SUMS.txt` 后使用其中的 `setup.ps1`。
 
@@ -41,13 +41,13 @@ SHA-1 在这里用于证书指纹标识；安装包和可执行文件的完整�
 只下载并校验，暂不安装：
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.1.9/install.ps1'))) -DownloadOnly
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.2.0/install.ps1'))) -DownloadOnly
 ```
 
 已阅读上述行为，并要预先授权依赖安装、该证书信任以及旧技能备份替换：
 
 ```powershell
-& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.1.9/install.ps1'))) -InstallPython -TrustCertificate -ReplaceExistingSkill
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/huangjuhua-aigc/WechatConnectAgent/v0.2.0/install.ps1'))) -InstallPython -TrustCertificate -ReplaceExistingSkill
 ```
 
 这些选项不能替你点击 UAC。`-NonInteractive` 关闭命令行询问；缺少必要授权就报错，不代表绕过授权。
@@ -62,7 +62,7 @@ SHA-1 在这里用于证书指纹标识；安装包和可执行文件的完整�
 
 程序由 MSIX 安装，包标识 `AgentChat.Receiver`，微信中显示“聊天收件箱”。
 
-- 技能源：`%USERPROFILE%\.wechat-connect-agent\versions\0.1.9\skills\wechat-chat-select`
+- 技能源：`%USERPROFILE%\.wechat-connect-agent\versions\0.2.0\skills\wechat-chat-select`
 - Codex / Kimi Code 入口：`%USERPROFILE%\.agents\skills\wechat-chat-select`
 - Claude Code 入口：`%USERPROFILE%\.claude\skills\wechat-chat-select`
 - 收件箱：`%USERPROFILE%\.agent-chat-receiver\Inbox`

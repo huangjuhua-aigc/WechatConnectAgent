@@ -1,6 +1,6 @@
 # Agent 接入
 
-接收器、Inbox 和 Python 脚本与 Agent 品牌无关。`SKILL.md` 定义操作流程，Python 3.9+ 标准库负责本地读取；系统分享接收器目前仅支持 Windows 10 19041+ / Windows 11 x64（.NET Framework 4.8）。其他系统可以读取已经导出的文件，不能运行此接收器。
+接收器、Inbox 和 Python 脚本与 Agent 品牌无关。Python 3.9+ 标准库负责本地读取。原生接收器支持 Windows 10 19041+ / Windows 11 x64（.NET 4.8）与 macOS 13+ Intel/Apple Silicon（测试版）。统一安装命令自动识别系统。
 
 | Agent | 用户技能目录 | 调用示例 |
 | --- | --- | --- |
@@ -16,7 +16,7 @@
 
 安装：优先使用 [WechatConnectAgent 的发布版与安装说明](https://github.com/huangjuhua-aigc/WechatConnectAgent)。手动接入开发目录时，将整个技能目录放在稳定位置，执行 `scripts/install-skill.ps1`。该手动脚本在 `.agents/skills` 和 `.claude/skills` 建目录联接，已经存在不同技能时拒绝覆盖；发布版安装器则可经确认后先备份再替换。旧版 `.codex/skills/wechat-chat-select` 可通过 `-MigrateLegacyCodex` 先备份再迁移，避免重复发现。不要移动作为联接目标的源目录。安装后重新打开会话或刷新技能。
 
-接收器要单独注册一次，见 [receiver.md](receiver.md)。在同一 Windows 用户下各 Agent 读取相同的 `%USERPROFILE%\.agent-chat-receiver\Inbox`。在 WSL、容器、远程主机中，先显式提供映射后的 `--inbox` 路径；本地 Windows 接收器不会自动跨机器传文件。
+统一安装器同时注册接收器和技能；Windows 见 [receiver.md](receiver.md)，Mac 见 [macos-workflow.md](macos-workflow.md)。各 Agent 共用同一用户的 `~/.agent-chat-receiver/Inbox`。Windows 入口使用目录联接，Mac 使用符号链接，均指向版本化技能源。上述 `install-skill.ps1` 仅适用于 Windows 开发目录；Mac 使用统一安装器。在 WSL、容器、远程主机中显式提供映射后的 `--inbox`，接收器不会跨机器传文件。
 
 ## 能力边界
 
