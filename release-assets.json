@@ -1,7 +1,15 @@
 {
   "version": "0.2.0",
   "assets": {
-    "windows-x64": { "url": "", "sha256": "" },
-    "macos-universal": { "url": "", "sha256": "" }
+    "windows-x64": {
+      "asset": "WechatConnectAgent-windows-x64-0.2.0.zip",
+      "url": "https://github.com/huangjuhua-aigc/WechatConnectAgent/releases/download/v0.2.0/WechatConnectAgent-windows-x64-0.2.0.zip",
+      "sha256": "91e9309b5e5fcb2d7ec84e8da9ddf8d25eff9c039753227c12f25c912a327225"
+    },
+    "macos-universal": {
+      "asset": "WechatConnectAgent-macos-universal-0.2.0.zip",
+      "url": "https://github.com/huangjuhua-aigc/WechatConnectAgent/releases/download/v0.2.0/WechatConnectAgent-macos-universal-0.2.0.zip",
+      "sha256": "6f2f64de18444816a6a1a4fe7cb693ca8886d855f27d09a4faa430c340d8df5f"
+    }
   }
 }

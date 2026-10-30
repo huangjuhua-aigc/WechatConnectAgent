@@ -1,5 +1,15 @@
 # 验证记录
 
+## 0.2.0 macOS 测试版与统一安装（2026-10-30）
+
+- macOS 13+ 接收器与分享扩展实现，Universal 包包含 arm64 / x86_64。采用 ad-hoc 测试签名，无 Developer ID 或公证。
+- Intel 与 Apple Silicon GitHub macOS runner 均通过 6 项 Swift 测试（原子提交、失败批次、符号链接拒绝、格式优先级、真实 NSItemProvider 数据/文件保留），以及针对已编译 Mac 程序的全部 21 项 Python 接收与解析测试。
+- 两类 Mac 均通过签名验证、扩展注册、实际安装、冲突保留、旧技能备份、技能链接、包身份和重复安装测试。可查看 [CI 记录](https://github.com/huangjuhua-aigc/WechatConnectAgent/actions/runs/40998799981)。
+- Windows 0.2.0 签名构建的全部 21 项接收/解析测试通过。安装器隔离测试通过：冲突保留、备份联接、含空格及引号的路径、重复安装和损坏载荷拒绝。
+- 4 项发布打包测试通过，包含 Mac 可执行位和清单校验。Node 安装器测试覆盖自动系统检测、Windows ARM 仿真拒绝、格式/哈希/路径校验及运行时缓存；符号链接测试在 Windows 跳过、Mac 执行。
+- **未验证：真人 Mac 微信分享、系统首次启动确认、沙盒扩展接收真实微信载荷、提示卡视觉/点击/置顶效果。** CI 注册与 NSItemProvider 测试不代替这些步骤。安装说明保留人工系统确认，不关闭 Gatekeeper 或移除隔离属性。
+- 本轮未重新进行 Windows 微信分享；原生接收和提示卡逻辑沿用已验证版本。Claude Code / Kimi Code 的完整会话、桌面控制，以及首次安装 Python/证书的干净机器流程仍未分别验证。
+
 ## 0.1.9 安装路径修正（2026-10-30）
 
 - 0.1.8 从开发目录安装通过，但随后从 GitHub 公开入口安装发现 AppX 错误 0x80073CF0 / 0x80070003。

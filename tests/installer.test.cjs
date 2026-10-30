@@ -47,3 +47,13 @@ test('symlink payloads are rejected', { skip: process.platform === 'win32' }, t 
   fs.symlinkSync('test.txt', path.join(root, 'linked.txt'));
   assert.throws(() => verifyBundle(root, 'macos-universal', '0.2.0'), /Linked/);
 });
+test('only installed Python bytecode caches may be absent from the release manifest', t => {
+  const { root } = fixture(t);
+  const cache = path.join(root, 'skills/wechat-chat-select/scripts/__pycache__');
+  fs.mkdirSync(cache, { recursive: true });
+  fs.writeFileSync(path.join(cache, 'wechat_archive.cpython-313.pyc'), 'generated cache');
+  assert.throws(() => verifyBundle(root, 'macos-universal', '0.2.0'), /Unlisted/);
+  verifyBundle(root, 'macos-universal', '0.2.0', true);
+  fs.writeFileSync(path.join(cache, 'unexpected.py'), 'unverified code');
+  assert.throws(() => verifyBundle(root, 'macos-universal', '0.2.0', true), /Unlisted/);
+});

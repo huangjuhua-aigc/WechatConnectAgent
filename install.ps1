@@ -12,7 +12,7 @@ if ($env:OS -ne 'Windows_NT') {
 }
 # Updated by scripts/package-release.py. The archive hash is pinned, not fetched alongside the download.
 $releaseVersion = '0.2.0'
-$archiveSha256 = '51d6f6513e5c2ea81de2c8fe36931c71dc94ddaf618bdbd0d9742910fd00b2ae'
+$archiveSha256 = '91e9309b5e5fcb2d7ec84e8da9ddf8d25eff9c039753227c12f25c912a327225'
 $assetName = 'WechatConnectAgent-windows-x64-' + $releaseVersion + '.zip'
 $url = 'https://github.com/huangjuhua-aigc/WechatConnectAgent/releases/download/v' + $releaseVersion + '/' + $assetName
 $downloadRoot = Join-Path ([Environment]::GetFolderPath('UserProfile')) ('.wechat-connect-agent\downloads\' + [Guid]::NewGuid().ToString('N'))
