@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+artifacts/
+dist/
+build/
+private/
+*.pfx
+*.p12
+*.key
+*.pem
+.env
+.env.*
+Inbox/
+Diagnostics/
+.DS_Store

@@ -1,0 +1,4 @@
+interface:
+  display_name: "微信聊天选取"
+  short_description: "选择微信消息，接收聊天与附件，供 Codex、Claude Code 和 Kimi Code 读取"
+  default_prompt: "使用 $wechat-chat-select，帮我在指定微信聊天中选择最近 20 条消息，先停在选中状态。"

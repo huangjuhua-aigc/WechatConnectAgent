@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+  xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap10 desktop6 rescap">
+  <Identity Name="AgentChat.Receiver" Publisher="CN=Agent Chat Receiver" Version="0.1.8.0" ProcessorArchitecture="x64" />
+  <Properties><DisplayName>Chat Inbox</DisplayName><PublisherDisplayName>Agent Chat Receiver</PublisherDisplayName><Logo>Assets\Logo150.png</Logo><desktop6:FileSystemWriteVirtualization>disabled</desktop6:FileSystemWriteVirtualization></Properties>
+  <Resources><Resource Language="zh-cn" /><Resource Language="en-us" /></Resources>
+  <Dependencies><TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26200.0" /></Dependencies>
+  <Capabilities><rescap:Capability Name="runFullTrust" /><rescap:Capability Name="unvirtualizedResources" /></Capabilities>
+  <Applications>
+    <Application Id="Receiver" Executable="AgentChatReceiver.exe" uap10:TrustLevel="mediumIL" uap10:RuntimeBehavior="packagedClassicApp">
+      <uap:VisualElements AppListEntry="none" DisplayName="聊天收件箱" Description="保存所选聊天及附件到本机，供各类 Agent 读取" BackgroundColor="transparent" Square44x44Logo="Assets\Logo44.png" Square150x150Logo="Assets\Logo150.png" />
+      <Extensions><uap:Extension Category="windows.shareTarget"><uap:ShareTarget Description="Chat Inbox">
+        <uap:SupportedFileTypes><uap:SupportsAnyFileType /></uap:SupportedFileTypes>
+        <uap:DataFormat>StorageItems</uap:DataFormat><uap:DataFormat>Text</uap:DataFormat>
+        <uap:DataFormat>URI</uap:DataFormat><uap:DataFormat>Bitmap</uap:DataFormat>
+        <uap:DataFormat>HTML Format</uap:DataFormat><uap:DataFormat>Rich Text Format</uap:DataFormat>
+      </uap:ShareTarget></uap:Extension></Extensions>
+    </Application>
+  </Applications>
+</Package>
